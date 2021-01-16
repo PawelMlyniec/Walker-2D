@@ -7,18 +7,24 @@ from critic import Critic
 
 
 class Agent():
-    def __init__(self, gamma=0.99):
+    def __init__(self, hparams, gamma=0.99):
         self.gamma = gamma
+        self.neurons = hparams['neurons']
+        self.n_layers = hparams['layers']
         # self.a_opt = tf.keras.optimizers.Adam(learning_rate=1e-5)
         # self.c_opt = tf.keras.optimizers.Adam(learning_rate=1e-5)
-        self.a_opt = tf.keras.optimizers.Adam(learning_rate=7e-3)
-        self.c_opt = tf.keras.optimizers.Adam(learning_rate=7e-3)
-        self.f1 = tf.keras.layers.Dense(22, activation='relu')
-        self.f2 = tf.keras.layers.Dense(22, activation='relu')
+        self.a_opt = tf.keras.optimizers.Adam(hparams['lr'])
+        self.c_opt = tf.keras.optimizers.Adam(hparams['lr'])
+        self.f1 = tf.keras.layers.Dense(self.neurons, activation='relu')
+        self.f2 = tf.keras.layers.Dense(self.neurons, activation='relu')
+        if self.n_layers == 3:
+            self.f3 = tf.keras.layers.Dense(self.neurons, activation='relu')
+
         self.sigma = tf.keras.layers.Dense(1, activation=None)
         self.mu = tf.keras.layers.Dense(1, activation=None)
-        self.actor = Actor()
-        self.critic = Critic()
+
+        self.actor = Actor(hparams)
+        self.critic = Critic(hparams)
         self.clip_pram = 0.2
 
     def act(self, state):
@@ -26,10 +32,12 @@ class Agent():
         prob = self.actor(np.array([state]))
         prob = prob.numpy()
         #dist = tfp.distributions.Categorical(probs=prob, dtype=tf.float32)
-        prob = self.f1(np.array([state]))
-        prob = self.f2(prob)
-        sigma = self.sigma(prob)
-        mu = self.mu(prob)
+        x = self.f1(np.array([state]))
+        x = self.f2(x)
+        if self.n_layers == 3:
+            x = self.f3(x)
+        sigma = self.sigma(x)
+        mu = self.mu(x)
         #dist = tfp.distributions.Uniform(low=-1.0, high=1.0)
         dist = tfp.distributions.Normal(mu, sigma)
         action = dist.sample(sample_shape=(6))
