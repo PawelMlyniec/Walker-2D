@@ -1,5 +1,6 @@
 import gym  # open ai gym
 import pybulletgym  # register PyBullet enviroments with open ai gym
+import tensorflow as tf
 
 if __name__ == '__main__':
     env = gym.make('Walker2DPyBulletEnv-v0')
