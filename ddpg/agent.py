@@ -5,17 +5,17 @@ from replay_buffer import RBuffer
 
 
 class Agent():
-    def __init__(self, env):
+    def __init__(self, env, hparams):
         n_action = len(env.action_space.high)
-        self.actor_main = Actor(n_action)
-        self.actor_target = Actor(n_action)
-        self.critic_main = Critic()
-        self.critic_target = Critic()
+        self.actor_main = Actor(n_action, hparams)
+        self.actor_target = Actor(n_action, hparams)
+        self.critic_main = Critic(hparams)
+        self.critic_target = Critic(hparams)
         self.batch_size = 64
         self.n_actions = len(env.action_space.high)
-        self.a_opt = tf.keras.optimizers.Adam(1e-4)
+        self.a_opt = tf.keras.optimizers.Adam(hparams['lr'])
         # self.actor_target = tf.keras.optimizers.Adam(.001)
-        self.c_opt = tf.keras.optimizers.Adam(1e-4)
+        self.c_opt = tf.keras.optimizers.Adam(hparams['lr'])
         # self.critic_target = tf.keras.optimizers.Adam(.002)
         self.memory = RBuffer(1_00_000, env.observation_space.shape, len(env.action_space.high))
         self.trainstep = 0
