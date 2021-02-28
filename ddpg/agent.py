@@ -1,7 +1,7 @@
 import tensorflow as tf
-from actor import Actor
-from critic import Critic
-from replay_buffer import RBuffer
+from ddpg.actor import Actor
+from ddpg.critic import Critic
+from ddpg.replay_buffer import RBuffer
 
 
 class Agent():
